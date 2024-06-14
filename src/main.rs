@@ -2,11 +2,10 @@ use clap::Parser;
 
 mod wol;
 
-/// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Name of the person to greet
+    /// MAC address to wake.
     #[arg(short, long)]
     mac: String,
 }
