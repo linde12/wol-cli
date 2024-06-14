@@ -50,10 +50,18 @@ fn parse_eui48(input: &str) -> Result<Eui48, ParseError> {
 }
 
 /// Creates a magic packet byte array for the given MAC address. The input address must follow the
-/// IEEE EUI-48 notation (hexadecimal character separated by hyphens)
+/// IEEE EUI-48 notation (hexadecimal character separated by hyphens), alternatively colons (:) can
+/// be used instead of hyphens.
 pub fn create_magic_packet(mac: &str) -> Result<MagicPacket, ParseError> {
     let mut packet = [0xFFu8; 102];
-    let mac = parse_eui48(&mac)?;
+    let mac_with_hyphens = mac
+        .chars()
+        .map(|c| match c {
+            ':' => '-',
+            _ => c,
+        })
+        .collect::<String>();
+    let mac = parse_eui48(&mac_with_hyphens)?;
 
     // fill the packet with 16 occurrences of the MAC
     // starting at the 7th byte so that the first 6
@@ -99,7 +107,7 @@ fn test_magic_too_long() {
 
 #[test]
 fn test_magic_separator_mixed() {
-    assert!(create_magic_packet("AA-aa:aa-aa-aa-aa").is_err());
+    assert!(create_magic_packet("AA-aa:aa-aa-aa-aa").is_ok());
 }
 
 #[test]
